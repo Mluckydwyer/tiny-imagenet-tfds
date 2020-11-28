@@ -114,7 +114,7 @@ class TinyImagenetDataset(tfds.core.GeneratorBasedBuilder):
 
             tfds.core.SplitGenerator(
                 name=tfds.Split.VALIDATION,
-                num_shards=1,
+            
                 gen_kwargs=dict(label_images=validation_label_images,)),
         ]
 
