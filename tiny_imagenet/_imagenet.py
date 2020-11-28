@@ -47,7 +47,7 @@ class TinyImagenetDataset(tfds.core.GeneratorBasedBuilder):
                 "label": tfds.features.ClassLabel(num_classes=200),
             }),
             supervised_keys=("image", "label"),
-            urls=["https://tiny-imagenet.herokuapp.com/"],
+            
             citation=r"""@article{tiny-imagenet,
                               author = {Li,Fei-Fei}, {Karpathy,Andrej} and {Johnson,Justin}"}""",
         )
