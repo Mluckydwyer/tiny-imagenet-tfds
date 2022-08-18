@@ -44,7 +44,11 @@ class TinyImagenetDataset(tfds.core.GeneratorBasedBuilder):
             features=tfds.features.FeaturesDict({
                 "image": tfds.features.Image(shape=(64, 64, 3), encoding_format="jpeg"),
                 "id": tfds.features.Text(),
-                "label": tfds.features.ClassLabel(num_classes=200),
+                "label": tfds.features.ClassLabel(
+                    num_classes=200,
+                    names_file="",
+                    doc="Image content labels"
+                ),
             }),
             supervised_keys=("image", "label"),
             
@@ -55,6 +59,12 @@ class TinyImagenetDataset(tfds.core.GeneratorBasedBuilder):
     def _process_train_ds(self, ds_folder, identities):
         path_to_ds = os.path.join(ds_folder, 'train')
         names = _list_folders(path_to_ds)
+        
+        # read the labels file (words.txt)
+        with tf.io.gfile.GFile(os.path.join(ds_folder, "words.txt")) as f:
+            words_raw = f.read()
+        
+        label_names = {dict(line.split("\t") for line in words_raw.split("\n"))
 
         label_images = {}
         for n in names:
@@ -62,7 +72,8 @@ class TinyImagenetDataset(tfds.core.GeneratorBasedBuilder):
             total_images = _list_imgs(images_dir)
             label_images[n] = {
                 'images': total_images,
-                'id': identities.index(n)
+                'id': identities.index(n),
+                'name': label_names[n]
             }
 
         return label_images
@@ -72,52 +83,31 @@ class TinyImagenetDataset(tfds.core.GeneratorBasedBuilder):
 
         # read the val_annotations.txt file
         with tf.io.gfile.GFile(os.path.join(path_to_ds, 'val_annotations.txt')) as f:
-            data_raw = f.read()
-
-        lines = data_raw.split("\n")
+            val_annotations_raw = f.read()
+                    
+        # read the labels file (words.txt)
+        with tf.io.gfile.GFile(os.path.join(ds_folder, "words.txt")) as f:
+            words_raw = f.read()
+        
+        label_names = {dict(line.split("\t") for line in words_raw.split("\n"))
 
         label_images = {}
-        for line in lines:
+        for line in val_annotations_raw.split("\n"):
             if line == '':
                 continue
             row_values = line.strip().split()
-            label_name = row_values[1]
-            if not label_name in label_images.keys():
-                label_images[label_name] = {
+            label_id = row_values[1]
+            if not label_id in label_images.keys():
+                label_images[label_id] = {
                     'images': [],
-                    'id': identities.index(label_name)
+                    'id': identities.index(label_id),
+                    'name': label_names[label_id]
                 }
 
-            label_images[label_name]['images'].append(
+            label_images[label_id]['images'].append(
                 os.path.join(path_to_ds, 'images', row_values[0]))
 
         return label_images
-
-#     def _process_test_ds(self, ds_folder, identities):
-#         path_to_ds = os.path.join(ds_folder, 'test')
-        
-#         # There are no test annotations
-#         with tf.io.gfile.GFile(os.path.join(path_to_ds, 'val_annotations.txt')) as f:
-#             data_raw = f.read()
-
-#         lines = data_raw.split("\n")
-
-#         label_images = {}
-#         for line in lines:
-#             if line == '':
-#                 continue
-#             row_values = line.strip().split()
-#             label_name = row_values[1]
-#             if not label_name in label_images.keys():
-#                 label_images[label_name] = {
-#                     'images': [],
-#                     'id': identities.index(label_name)
-#                 }
-
-#             label_images[label_name]['images'].append(
-#                 os.path.join(path_to_ds, 'images', row_values[0]))
-
-#         return label_images
         
     
     def _split_generators(self, dl_manager):
@@ -151,6 +141,7 @@ class TinyImagenetDataset(tfds.core.GeneratorBasedBuilder):
                 key = "%s/%s" % (label, os.path.basename(image_path))
                 yield key, {
                     "image": image_path,
-                    "id": label,
+                    "label_id": label,
                     "label": image_info['id'],
+                    "label_name": image_info['name'],
                 }
