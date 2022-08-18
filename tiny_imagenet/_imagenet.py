@@ -6,12 +6,9 @@ import tensorflow_datasets.public_api as tfds
 
 _URL = "http://cs231n.stanford.edu/tiny-imagenet-200.zip"
 _EXTRACTED_FOLDER_NAME = "tiny-imagenet-200"
+_LABELS_FNAME = "tiny_imagenet/tiny_imagenet_labels.txt"
 
 SUPPORTED_IMAGE_FORMAT = (".jpg", ".jpeg", ".png")
-
-# checksum_dir = os.path.join(os.path.dirname(__file__), 'url_checksums/')
-# checksum_dir = os.path.normpath(checksum_dir)
-# tfds.download.add_checksums_dir(checksum_dir)
 
 
 def _list_folders(root_dir):
@@ -31,9 +28,10 @@ def _list_imgs(root_dir):
 
 class TinyImagenetDataset(tfds.core.GeneratorBasedBuilder):
     """ tiny-imagenet dataset """
-    VERSION = tfds.core.Version('0.1.0')
+    VERSION = tfds.core.Version('0.2.0')
 
     def _info(self):
+        names_file = tfds.core.tfds_path(_LABELS_FNAME)
         return tfds.core.DatasetInfo(
             builder=self,
             description=("""Tiny ImageNet Challenge is a similar challenge as ImageNet with a smaller dataset but
@@ -46,12 +44,13 @@ class TinyImagenetDataset(tfds.core.GeneratorBasedBuilder):
                 "id": tfds.features.Text(),
                 "label": tfds.features.ClassLabel(
                     num_classes=200,
-                    names_file="",
-                    doc="Image content labels"
+                    names_file=names_file
                 ),
+                "metadata": {
+                    "label_name": tf.string
+                }
             }),
             supervised_keys=("image", "label"),
-            
             citation=r"""@article{tiny-imagenet,
                               author = {Li,Fei-Fei}, {Karpathy,Andrej} and {Johnson,Justin}"}""",
         )
@@ -60,10 +59,10 @@ class TinyImagenetDataset(tfds.core.GeneratorBasedBuilder):
         path_to_ds = os.path.join(ds_folder, 'train')
         names = _list_folders(path_to_ds)
         
-        # read the labels file (words.txt)
+        # Read the labels file (words.txt)
         with tf.io.gfile.GFile(os.path.join(ds_folder, "words.txt")) as f:
             words_raw = f.read()
-        
+
         label_names = dict(line.split("\t") for line in words_raw.split("\n"))
 
         label_images = {}
@@ -80,16 +79,16 @@ class TinyImagenetDataset(tfds.core.GeneratorBasedBuilder):
 
     def _process_val_ds(self, ds_folder, identities):
         path_to_ds = os.path.join(ds_folder, 'val')
+        
+        # Read the labels file (words.txt)
+        with tf.io.gfile.GFile(os.path.join(ds_folder, "words.txt")) as f:
+            words_raw = f.read()
 
+        label_names = dict(line.split("\t") for line in words_raw.split("\n"))
+        
         # read the val_annotations.txt file
         with tf.io.gfile.GFile(os.path.join(path_to_ds, 'val_annotations.txt')) as f:
             val_annotations_raw = f.read()
-                    
-        # read the labels file (words.txt)
-        with tf.io.gfile.GFile(os.path.join(ds_folder, "words.txt")) as f:
-            words_raw = f.read()
-        
-        label_names = {dict(line.split("\t") for line in words_raw.split("\n"))
 
         label_images = {}
         for line in val_annotations_raw.split("\n"):
@@ -141,7 +140,9 @@ class TinyImagenetDataset(tfds.core.GeneratorBasedBuilder):
                 key = "%s/%s" % (label, os.path.basename(image_path))
                 yield key, {
                     "image": image_path,
-                    "label_id": label,
+                    "id": label,
                     "label": image_info['id'],
-                    "label_name": image_info['name'],
+                    "metadata": {
+                        "label_name": image_info['name']
+                    }
                 }
