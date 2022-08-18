@@ -6,7 +6,7 @@ import tensorflow_datasets.public_api as tfds
 
 _URL = "http://cs231n.stanford.edu/tiny-imagenet-200.zip"
 _EXTRACTED_FOLDER_NAME = "tiny-imagenet-200"
-_LABELS_FNAME = "tiny_imagenet/tiny_imagenet_labels.txt"
+_LABELS_FNAME = "tiny_imagenet/words.txt"
 
 SUPPORTED_IMAGE_FORMAT = (".jpg", ".jpeg", ".png")
 
