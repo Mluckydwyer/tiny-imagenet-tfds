@@ -64,7 +64,7 @@ class TinyImagenetDataset(tfds.core.GeneratorBasedBuilder):
         with tf.io.gfile.GFile(os.path.join(ds_folder, "words.txt")) as f:
             words_raw = f.read()
         
-        label_names = {dict(line.split("\t") for line in words_raw.split("\n"))
+        label_names = dict(line.split("\t") for line in words_raw.split("\n"))
 
         label_images = {}
         for n in names:
