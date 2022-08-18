@@ -9,8 +9,8 @@ _EXTRACTED_FOLDER_NAME = "tiny-imagenet-200"
 
 SUPPORTED_IMAGE_FORMAT = (".jpg", ".jpeg", ".png")
 
-checksum_dir = os.path.join(os.path.dirname(__file__), 'url_checksums/')
-checksum_dir = os.path.normpath(checksum_dir)
+# checksum_dir = os.path.join(os.path.dirname(__file__), 'url_checksums/')
+# checksum_dir = os.path.normpath(checksum_dir)
 # tfds.download.add_checksums_dir(checksum_dir)
 
 
@@ -93,6 +93,33 @@ class TinyImagenetDataset(tfds.core.GeneratorBasedBuilder):
 
         return label_images
 
+#     def _process_test_ds(self, ds_folder, identities):
+#         path_to_ds = os.path.join(ds_folder, 'test')
+        
+#         # There are no test annotations
+#         with tf.io.gfile.GFile(os.path.join(path_to_ds, 'val_annotations.txt')) as f:
+#             data_raw = f.read()
+
+#         lines = data_raw.split("\n")
+
+#         label_images = {}
+#         for line in lines:
+#             if line == '':
+#                 continue
+#             row_values = line.strip().split()
+#             label_name = row_values[1]
+#             if not label_name in label_images.keys():
+#                 label_images[label_name] = {
+#                     'images': [],
+#                     'id': identities.index(label_name)
+#                 }
+
+#             label_images[label_name]['images'].append(
+#                 os.path.join(path_to_ds, 'images', row_values[0]))
+
+#         return label_images
+        
+    
     def _split_generators(self, dl_manager):
         extracted_path = dl_manager.extract(dl_manager.download(_URL))
 
