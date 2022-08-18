@@ -3,9 +3,7 @@
 This library contains the support to download, extract, and prepare the dataset as tfrecords.
 """
 
-import datetime
-import os
-import sys
+import datetime, os, sys
 
 from setuptools import find_packages
 from setuptools import setup
@@ -28,7 +26,8 @@ TESTS_REQUIRE = [
 
 # Static files needed by datasets.
 DATASET_FILES = [
-    'url_checksums/tiny_imagenet_dataset.txt'
+    'url_checksums/tiny_imagenet_dataset.txt',
+    'checksums.tsv'
 ]
 
 EXTRAS_REQUIRE = {
@@ -36,13 +35,13 @@ EXTRAS_REQUIRE = {
 
 setup(
     name=project_name,
-    version='0.1.0',
+    version='0.2.0',
     description=DOCLINES[0],
     long_description='\n'.join(DOCLINES[2:]),
-    author='Kapil Sachdeva',
+    author='Matthew Dwyer',
     author_email='not@anemail.org',
-    url='http://github.com/ksachdeva/tiny-imagenet-tfds',
-    download_url='https://github.com/ksachdeva/tiny-imagenet-tfds/tags',
+    url='https://github.com/Mluckydwyer/tiny-imagenet-tfds',
+    download_url='https://github.com/Mluckydwyer/tiny-imagenet-tfds/tags',
     license='Apache 2.0',
     packages=find_packages(exclude=("example",)),
     package_data={
@@ -58,5 +57,5 @@ setup(
         'License :: OSI Approved :: Apache Software License',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
     ],
-    keywords='tensorflow machine learning datasets tiny-imagenet',
+    keywords='tensorflow machine learning datasets tiny-imagenet for ISU: CPR E 487/587',
 )
