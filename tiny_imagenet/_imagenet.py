@@ -11,7 +11,7 @@ SUPPORTED_IMAGE_FORMAT = (".jpg", ".jpeg", ".png")
 
 checksum_dir = os.path.join(os.path.dirname(__file__), 'url_checksums/')
 checksum_dir = os.path.normpath(checksum_dir)
-tfds.download.add_checksums_dir(checksum_dir)
+# tfds.download.add_checksums_dir(checksum_dir)
 
 
 def _list_folders(root_dir):
