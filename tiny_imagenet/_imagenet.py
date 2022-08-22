@@ -44,7 +44,7 @@ class TinyImagenetDataset(tfds.core.GeneratorBasedBuilder):
                 "id": tfds.features.Text(),
                 "label": tfds.features.ClassLabel(
                     num_classes=200,
-                    names_file=names_file
+#                     names_file=names_file
                 ),
                 "metadata": {
                     "label_name": tf.string
